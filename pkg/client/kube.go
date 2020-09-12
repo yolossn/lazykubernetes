@@ -97,3 +97,35 @@ func (k *K8s) ListPods(namespace string) ([]PodInfo, error) {
 	}
 	return podList, nil
 }
+
+type JobInfo struct {
+	Name        string
+	Completions string
+	Duration    float64 // secs
+	Age         string
+	CreatedAt   time.Time
+}
+
+func (k *K8s) ListJobs(namespace string) ([]JobInfo, error) {
+	ctx := context.TODO()
+	opts := v1.ListOptions{}
+	jobs, _ := k.client.BatchV1().Jobs(namespace).List(ctx, opts)
+	jobList := []JobInfo{}
+	for _, job := range jobs.Items {
+		totalPods := job.Status.Active + job.Status.Succeeded + job.Status.Failed
+
+		var duration float64
+		if job.Status.CompletionTime != nil {
+			duration = job.Status.CompletionTime.Time.Sub(job.ObjectMeta.CreationTimestamp.Time).Seconds()
+		}
+
+		p := JobInfo{
+			Name:        job.Name,
+			Completions: fmt.Sprintf("%v/%v", job.Status.Succeeded, totalPods),
+			Duration:    duration,
+			CreatedAt:   job.ObjectMeta.CreationTimestamp.Time,
+		}
+		jobList = append(jobList, p)
+	}
+	return jobList, nil
+}
