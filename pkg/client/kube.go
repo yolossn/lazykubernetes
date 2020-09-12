@@ -6,9 +6,11 @@ import (
 	"path/filepath"
 	"time"
 
+	v1Core "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
+	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
+	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 )
@@ -60,8 +62,31 @@ func (k *K8s) ListNamespace() ([]NamespaceInfo, error) {
 	return ns, nil
 }
 
+// TODO: Verify timeout and handle it
+func (k *K8s) WatchNamespace() (watch.Interface, error) {
+	ctx := context.TODO()
+	opts := v1.ListOptions{}
+	wi, err := k.client.CoreV1().Namespaces().Watch(ctx, opts)
+	if err != nil {
+		return nil, err
+	}
+	return wi, nil
+}
+
+func (k *K8s) WatchPods(namespace string) (watch.Interface, error) {
+	ctx := context.TODO()
+	opts := v1.ListOptions{}
+
+	wi, err := k.client.CoreV1().Pods(namespace).Watch(ctx, opts)
+	if err != nil {
+		return nil, err
+	}
+	return wi, nil
+}
+
 type PodInfo struct {
 	Name      string
+	Namespace string
 	Status    string
 	Ready     string
 	Restarts  int32
@@ -69,6 +94,7 @@ type PodInfo struct {
 }
 
 func (k *K8s) ListPods(namespace string) ([]PodInfo, error) {
+
 	ctx := context.TODO()
 	opts := v1.ListOptions{}
 	pods, _ := k.client.CoreV1().Pods(namespace).List(ctx, opts)
@@ -88,6 +114,7 @@ func (k *K8s) ListPods(namespace string) ([]PodInfo, error) {
 
 		p := PodInfo{
 			Name:      pod.Name,
+			Namespace: pod.Namespace,
 			Status:    string(pod.Status.Phase),
 			Restarts:  restarts,
 			Ready:     fmt.Sprintf("%v/%v", ready, totalContianers),
@@ -96,4 +123,21 @@ func (k *K8s) ListPods(namespace string) ([]PodInfo, error) {
 		podList = append(podList, p)
 	}
 	return podList, nil
+}
+
+func (k *K8s) DescribePod(ns string, podname string) (*v1Core.Pod, error) {
+	ctx := context.TODO()
+	opts := v1.GetOptions{}
+
+	out, err := k.client.CoreV1().Pods(ns).Get(ctx, podname, opts)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (k *K8s) StreamPodLogs(ns string, podname string) *restclient.Request {
+	opts := &v1Core.PodLogOptions{Follow: true}
+	request := k.client.CoreV1().Pods(ns).GetLogs(podname, opts)
+	return request
 }
