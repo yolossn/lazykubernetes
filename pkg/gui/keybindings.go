@@ -31,6 +31,10 @@ func (gui *Gui) SetKeybindings(g *gocui.Gui) error {
 		return err
 	}
 
+	if err := g.SetTabClickBinding("info", gui.onInfoTabCick); err != nil {
+		return err
+	}
+
 	return nil
 }
 

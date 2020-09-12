@@ -15,3 +15,10 @@ func (gui *Gui) onInfoClick(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
+func (gui *Gui) onInfoTabCick(tabIndex int) error {
+	resourceView := gui.getInfoView()
+	resourceView.TabIndex = tabIndex
+
+	return nil
+}
+
