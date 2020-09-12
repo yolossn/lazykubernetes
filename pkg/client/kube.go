@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"path/filepath"
 	"time"
 
@@ -61,11 +60,12 @@ func (k *K8s) ListNamespace() ([]NamespaceInfo, error) {
 }
 
 type PodInfo struct {
-	Name      string
-	Status    string
-	Ready     string
-	Restarts  int32
-	CreatedAt time.Time
+	Name            string
+	Status          string
+	ReadyContainers int32
+	TotalContainers int32
+	Restarts        int32
+	CreatedAt       time.Time
 }
 
 func (k *K8s) ListPods(namespace string) ([]PodInfo, error) {
@@ -75,8 +75,8 @@ func (k *K8s) ListPods(namespace string) ([]PodInfo, error) {
 	podList := []PodInfo{}
 	for _, pod := range pods.Items {
 		restarts := int32(0)
-		ready := 0
-		totalContianers := len(pod.Status.ContainerStatuses)
+		ready := int32(0)
+		totalContianers := int32(len(pod.Status.ContainerStatuses))
 		for _, container := range pod.Status.ContainerStatuses {
 			if container.RestartCount > restarts {
 				restarts = container.RestartCount
@@ -87,13 +87,44 @@ func (k *K8s) ListPods(namespace string) ([]PodInfo, error) {
 		}
 
 		p := PodInfo{
-			Name:      pod.Name,
-			Status:    string(pod.Status.Phase),
-			Restarts:  restarts,
-			Ready:     fmt.Sprintf("%v/%v", ready, totalContianers),
-			CreatedAt: pod.ObjectMeta.CreationTimestamp.Time,
+			Name:            pod.Name,
+			Status:          string(pod.Status.Phase),
+			Restarts:        restarts,
+			ReadyContainers: ready,
+			TotalContainers: totalContianers,
+			CreatedAt:       pod.ObjectMeta.CreationTimestamp.Time,
 		}
 		podList = append(podList, p)
 	}
 	return podList, nil
+}
+
+type JobInfo struct {
+	Name        string
+	Active      int32
+	Succeeded   int32
+	Failed      int32
+	Age         string
+	CompletedAt time.Time
+	CreatedAt   time.Time
+}
+
+func (k *K8s) ListJobs(namespace string) ([]JobInfo, error) {
+	ctx := context.TODO()
+	opts := v1.ListOptions{}
+	jobs, _ := k.client.BatchV1().Jobs(namespace).List(ctx, opts)
+	jobList := []JobInfo{}
+	for _, job := range jobs.Items {
+
+		p := JobInfo{
+			Name:        job.Name,
+			Active:      job.Status.Active,
+			Succeeded:   job.Status.Succeeded,
+			Failed:      job.Status.Failed,
+			CompletedAt: job.Status.CompletionTime.Time,
+			CreatedAt:   job.ObjectMeta.CreationTimestamp.Time,
+		}
+		jobList = append(jobList, p)
+	}
+	return jobList, nil
 }
