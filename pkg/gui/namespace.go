@@ -3,9 +3,9 @@ package gui
 import (
 	"time"
 
-	"github.com/jesseduffield/gocui"
-	"github.com/olekukonko/tablewriter"
+	"github.com/yolossn/lazykubernetes/pkg/utils"
 
+	"github.com/jesseduffield/gocui"
 	duration "k8s.io/apimachinery/pkg/util/duration"
 )
 
@@ -53,22 +53,7 @@ func (gui *Gui) reRenderNamespace() error {
 			data[i][2] = duration.HumanDuration(time.Since(n.CreatedAt))
 		}
 
-		// Use table writer to render the data into view
-		// https://github.com/olekukonko/tablewriter#example-10---set-nowhitespace-and-tablepadding-option
-		table := tablewriter.NewWriter(nsView)
-		table.SetAutoWrapText(false)
-		table.SetAutoFormatHeaders(true)
-		table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-		table.SetAlignment(tablewriter.ALIGN_LEFT)
-		table.SetCenterSeparator("")
-		table.SetColumnSeparator("")
-		table.SetRowSeparator("")
-		table.SetHeaderLine(false)
-		table.SetBorder(false)
-		table.SetTablePadding("\t")
-		table.SetNoWhiteSpace(true)
-		table.AppendBulk(data)
-		table.Render()
+		utils.RenderTable(nsView, data)
 
 		return nil
 	})
