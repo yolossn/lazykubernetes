@@ -7,6 +7,7 @@ import (
 
 	v1Core "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
@@ -37,6 +38,10 @@ func Newk8s() (*K8s, error) {
 	}
 
 	return &K8s{clientset}, nil
+}
+
+func (k *K8s) GetServerInfo() (*version.Info, error) {
+	return k.client.DiscoveryClient.ServerVersion()
 }
 
 type NamespaceInfo struct {

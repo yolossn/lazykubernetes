@@ -67,6 +67,8 @@ func (gui *Gui) Run() error {
 	// reRender
 	go gui.goEvery(time.Second, gui.reRenderNamespace)
 	go gui.goEvery(time.Second, gui.reRenderResource)
+	go gui.goEvery(time.Second, gui.reRenderClusterInfo)
+
 	err = g.MainLoop()
 	return err
 }
