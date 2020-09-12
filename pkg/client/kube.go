@@ -48,7 +48,6 @@ func (k *K8s) ListNamespace() ([]NamespaceInfo, error) {
 	ctx := context.TODO()
 	opts := v1.ListOptions{}
 	list, _ := k.client.CoreV1().Namespaces().List(ctx, opts)
-	// fmt.Println(list, err)
 	ns := []NamespaceInfo{}
 	for _, item := range list.Items {
 		n := NamespaceInfo{
@@ -94,7 +93,6 @@ func (k *K8s) ListPods(namespace string) ([]PodInfo, error) {
 			Ready:     fmt.Sprintf("%v/%v", ready, totalContianers),
 			CreatedAt: pod.ObjectMeta.CreationTimestamp.Time,
 		}
-		fmt.Println(p)
 		podList = append(podList, p)
 	}
 	return podList, nil
