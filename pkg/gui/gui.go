@@ -5,6 +5,10 @@ import (
 	"github.com/yolossn/lazykubernetes/pkg/client"
 )
 
+type State struct {
+	selectedNamespaceIndex int
+}
+
 var OverlappingEdges = false
 
 type Gui struct {
@@ -17,6 +21,9 @@ func NewGui(k8sClient *client.K8s) (*Gui, error) {
 }
 
 func (gui *Gui) Run() error {
+
+	// state := &State{}
+
 	g, err := gocui.NewGui(gocui.OutputNormal, OverlappingEdges)
 	if err != nil {
 		return err
@@ -46,6 +53,8 @@ func (gui *Gui) Run() error {
 
 	// Init render
 	go gui.reRenderNamespace()
+
+	go gui.reRenderResource()
 
 	err = g.MainLoop()
 	return err
