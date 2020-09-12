@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 	"time"
 
@@ -61,6 +62,7 @@ func (k *K8s) ListNamespace() ([]NamespaceInfo, error) {
 
 type PodInfo struct {
 	Name            string
+	Namespace       string
 	Status          string
 	ReadyContainers int32
 	TotalContainers int32
@@ -88,6 +90,7 @@ func (k *K8s) ListPods(namespace string) ([]PodInfo, error) {
 
 		p := PodInfo{
 			Name:            pod.Name,
+			Namespace:       pod.Namespace,
 			Status:          string(pod.Status.Phase),
 			Restarts:        restarts,
 			ReadyContainers: ready,
@@ -101,6 +104,7 @@ func (k *K8s) ListPods(namespace string) ([]PodInfo, error) {
 
 type JobInfo struct {
 	Name        string
+	Namespace   string
 	Active      int32
 	Succeeded   int32
 	Failed      int32
@@ -118,6 +122,7 @@ func (k *K8s) ListJobs(namespace string) ([]JobInfo, error) {
 
 		p := JobInfo{
 			Name:        job.Name,
+			Namespace:   job.Namespace,
 			Active:      job.Status.Active,
 			Succeeded:   job.Status.Succeeded,
 			Failed:      job.Status.Failed,
@@ -127,4 +132,148 @@ func (k *K8s) ListJobs(namespace string) ([]JobInfo, error) {
 		jobList = append(jobList, p)
 	}
 	return jobList, nil
+}
+
+type DeploymentInfo struct {
+	Name            string
+	Namespace       string
+	Available       int32
+	ReadyReplicas   int32
+	Replicas        int32
+	UpdatedReplicas int32
+	CreatedAt       time.Time
+}
+
+func (k *K8s) ListDeployments(namespace string) ([]DeploymentInfo, error) {
+	ctx := context.TODO()
+	opts := v1.ListOptions{}
+	deployments, _ := k.client.AppsV1().Deployments(namespace).List(ctx, opts)
+	deploymentList := []DeploymentInfo{}
+	for _, deployment := range deployments.Items {
+		d := DeploymentInfo{
+			Name:            deployment.Name,
+			Namespace:       deployment.Namespace,
+			Available:       deployment.Status.AvailableReplicas,
+			ReadyReplicas:   deployment.Status.ReadyReplicas,
+			Replicas:        deployment.Status.Replicas,
+			UpdatedReplicas: deployment.Status.UpdatedReplicas,
+			CreatedAt:       deployment.ObjectMeta.CreationTimestamp.Time,
+		}
+		deploymentList = append(deploymentList, d)
+	}
+	return deploymentList, nil
+}
+
+type StatefulsetInfo struct {
+	Name            string
+	Namespace       string
+	CurrentReplicas int32
+	ReadyReplicas   int32
+	Replicas        int32
+	UpdatedReplicas int32
+	CreatedAt       time.Time
+}
+
+func (k *K8s) ListStatefulsets(namespace string) ([]StatefulsetInfo, error) {
+	ctx := context.TODO()
+	opts := v1.ListOptions{}
+	statefulsets, _ := k.client.AppsV1().StatefulSets(namespace).List(ctx, opts)
+	statefulsetList := []StatefulsetInfo{}
+	// https: //kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#statefulsetstatus-v1-apps
+	for _, statefulset := range statefulsets.Items {
+		s := StatefulsetInfo{
+			Name:            statefulset.Name,
+			Namespace:       statefulset.Namespace,
+			CurrentReplicas: statefulset.Status.CurrentReplicas,
+			ReadyReplicas:   statefulset.Status.ReadyReplicas,
+			Replicas:        statefulset.Status.Replicas,
+			UpdatedReplicas: statefulset.Status.UpdatedReplicas,
+			CreatedAt:       statefulset.ObjectMeta.CreationTimestamp.Time,
+		}
+		statefulsetList = append(statefulsetList, s)
+		fmt.Println(s)
+	}
+	return statefulsetList, nil
+}
+
+type SecretInfo struct {
+	Name      string
+	Namespace string
+	Type      string
+	Data      int32
+	CreatedAt time.Time
+}
+
+func (k *K8s) ListSecrets(namespace string) ([]SecretInfo, error) {
+	ctx := context.TODO()
+	opts := v1.ListOptions{}
+	secrets, _ := k.client.CoreV1().Secrets(namespace).List(ctx, opts)
+	secretList := []SecretInfo{}
+	// https: //kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#secret-v1-core
+	for _, secret := range secrets.Items {
+		s := SecretInfo{
+			Name:      secret.Name,
+			Namespace: secret.Namespace,
+			Type:      string(secret.Type),
+			Data:      int32(len(secret.Data)),
+			CreatedAt: secret.ObjectMeta.CreationTimestamp.Time,
+		}
+		secretList = append(secretList, s)
+	}
+	return secretList, nil
+}
+
+type ConfigMapInfo struct {
+	Name      string
+	Namespace string
+	Data      int32
+	CreatedAt time.Time
+}
+
+func (k *K8s) ListConfigMap(namespace string) ([]ConfigMapInfo, error) {
+	ctx := context.TODO()
+	opts := v1.ListOptions{}
+	configmaps, _ := k.client.CoreV1().ConfigMaps(namespace).List(ctx, opts)
+	configmapList := []ConfigMapInfo{}
+	// https: //kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#configmap-v1-core
+	for _, configmap := range configmaps.Items {
+		s := ConfigMapInfo{
+			Name:      configmap.Name,
+			Namespace: configmap.Namespace,
+			Data:      int32(len(configmap.Data)),
+			CreatedAt: configmap.ObjectMeta.CreationTimestamp.Time,
+		}
+		configmapList = append(configmapList, s)
+	}
+	return configmapList, nil
+}
+
+type NodeInfo struct {
+	Name      string
+	Status    string
+	Version   string
+	CreatedAt time.Time
+}
+
+func (k *K8s) ListNode() ([]NodeInfo, error) {
+	ctx := context.TODO()
+	opts := v1.ListOptions{}
+	nodes, _ := k.client.CoreV1().Nodes().List(ctx, opts)
+	nodeList := []NodeInfo{}
+	// https: //kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#node-v1-core
+	for _, node := range nodes.Items {
+		var status string
+		if len(node.Status.Conditions) > 0 {
+			status = string(node.Status.Conditions[len(node.Status.Conditions)-1].Type)
+		}
+
+		n := NodeInfo{
+			Name:      node.Name,
+			Status:    status,
+			Version:   node.Status.NodeInfo.KubeletVersion,
+			CreatedAt: node.ObjectMeta.CreationTimestamp.Time,
+		}
+		nodeList = append(nodeList, n)
+	}
+	return nodeList, nil
 }
