@@ -27,6 +27,9 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		return nil
 	}
 
+	_, _ = g.SetViewOnBottom("limit")
+	g.DeleteView("limit")
+
 	unitHeight := termHeight / 10
 
 	leftColumnWidth := termWidth / 4
