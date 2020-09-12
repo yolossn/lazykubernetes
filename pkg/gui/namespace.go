@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/jesseduffield/gocui"
+	"gopkg.in/yaml.v2"
 )
 
 func (gui *Gui) getNamespaceView() *gocui.View {
@@ -23,7 +24,34 @@ func (gui *Gui) onNamespaceClick(g *gocui.Gui, v *gocui.View) error {
 	// Find selectedLine
 	gui.panelStates.Namespace.SelectedLine = gui.FindSelectedLine(v, len(gui.data.NamespaceData))
 	fmt.Fprintln(infoView, gui.panelStates.Namespace.SelectedLine)
+	err := gui.handleNSSelect(v)
+	if err != nil {
+		return err
+	}
 	return gui.reRenderResource()
+}
+
+func (gui *Gui) handleNSSelect(v *gocui.View) error {
+	infoView := gui.getInfoView()
+	ns := gui.getCurrentNS()
+	data, err := gui.k8sClient.GetNamespace(ns)
+	if err != nil {
+		return err
+	}
+
+	err = gui.focusPoint(0, gui.panelStates.Namespace.SelectedLine, len(gui.data.NamespaceData), v)
+	if err != nil {
+		return err
+	}
+
+	infoView.Clear()
+	output, err := yaml.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	fmt.Fprintln(infoView, string(output))
+	return nil
 }
 
 func (gui *Gui) getCurrentNS() string {
@@ -87,4 +115,14 @@ func (gui *Gui) reRenderNamespace() error {
 	})
 
 	return nil
+}
+
+func (gui *Gui) handleNSKeyUp(g *gocui.Gui, v *gocui.View) error {
+	gui.changeSelectedLine(&gui.panelStates.Namespace.SelectedLine, len(gui.data.NamespaceData), false)
+	return gui.handleNSSelect(v)
+}
+
+func (gui *Gui) handleNSKeyDown(g *gocui.Gui, v *gocui.View) error {
+	gui.changeSelectedLine(&gui.panelStates.Namespace.SelectedLine, len(gui.data.NamespaceData), true)
+	return gui.handleNSSelect(v)
 }

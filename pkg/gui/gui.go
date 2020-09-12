@@ -101,3 +101,63 @@ func (gui *Gui) FindSelectedLine(v *gocui.View, itemCount int) int {
 	}
 	return selectedLine
 }
+
+func (gui *Gui) changeSelectedLine(line *int, total int, up bool) {
+	if up {
+		if *line == -1 || *line == 0 {
+			return
+		}
+
+		*line -= 1
+	} else {
+		if *line == -1 || *line == total-1 {
+			return
+		}
+
+		*line += 1
+	}
+}
+
+func (gui *Gui) focusPoint(selectedX int, selectedY int, lineCount int, v *gocui.View) error {
+	if selectedY < 0 || selectedY > lineCount {
+		return nil
+	}
+	ox, oy := v.Origin()
+	originalOy := oy
+	cx, cy := v.Cursor()
+	originalCy := cy
+	_, height := v.Size()
+
+	ly := Max(height-1, 0)
+
+	windowStart := oy
+	windowEnd := oy + ly
+
+	if selectedY < windowStart {
+		oy = Max(oy-(windowStart-selectedY), 0)
+	} else if selectedY > windowEnd {
+		oy += (selectedY - windowEnd)
+	}
+
+	if windowEnd > lineCount-1 {
+		shiftAmount := (windowEnd - (lineCount - 1))
+		oy = Max(oy-shiftAmount, 0)
+	}
+
+	if originalOy != oy {
+		_ = v.SetOrigin(ox, oy)
+	}
+
+	cy = selectedY - oy
+	if originalCy != cy {
+		_ = v.SetCursor(cx, selectedY-oy)
+	}
+	return nil
+}
+
+func Max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}

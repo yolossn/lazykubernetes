@@ -24,6 +24,7 @@ func (gui *Gui) onResourceClick(g *gocui.Gui, v *gocui.View) error {
 	switch getResourceTabs()[gui.panelStates.Resource.TabIndex] {
 	case "pod":
 		infoView.Tabs = getPodInfoTabs()
+		gui.panelStates.Resource.SelectedLine = gui.FindSelectedLine(v, len(gui.data.PodData))
 		return gui.handlePodSelect(v)
 	}
 	// podSelected := gui.FindSelectedLine(v, len(gui.data.PodData))
@@ -70,6 +71,11 @@ func (gui *Gui) handlePodSelect(v *gocui.View) error {
 	pod := gui.data.PodData[podSelected]
 
 	infoView := gui.getInfoView()
+
+	err := gui.focusPoint(0, gui.panelStates.Resource.SelectedLine, len(gui.data.PodData), v)
+	if err != nil {
+		return err
+	}
 
 	// Find the tab in info panel
 	switch getPodInfoTabs()[gui.panelStates.Resource.TabIndex] {
@@ -194,4 +200,42 @@ func (gui *Gui) WatchPods() error {
 		}
 		_ = gui.reRenderNamespace()
 	}
+}
+
+func (gui *Gui) handleResourceKeyUp(g *gocui.Gui, v *gocui.View) error {
+	switch gui.getCurrentResourceTab() {
+	case "pod":
+		gui.changeSelectedLine(&gui.panelStates.Resource.SelectedLine, len(gui.data.PodData), false)
+		return gui.handlePodSelect(v)
+		// case "job":
+		// 	infoView.Tabs = getJobInfoTabs()
+		// case "deploy":
+		// 	infoView.Tabs = getDeployInfoTabs()
+		// case "service":
+		// 	infoView.Tabs = getServiceInfoTabs()
+		// case "secret":
+		// 	infoView.Tabs = getSecretInfoTabs()
+		// case "configMap":
+		// 	infoView.Tabs = getConfigMapInfoTabs()
+	}
+	return nil
+}
+
+func (gui *Gui) handleResourceKeyDown(g *gocui.Gui, v *gocui.View) error {
+	switch gui.getCurrentResourceTab() {
+	case "pod":
+		gui.changeSelectedLine(&gui.panelStates.Resource.SelectedLine, len(gui.data.PodData), true)
+		return gui.handlePodSelect(v)
+		// case "job":
+		// 	infoView.Tabs = getJobInfoTabs()
+		// case "deploy":
+		// 	infoView.Tabs = getDeployInfoTabs()
+		// case "service":
+		// 	infoView.Tabs = getServiceInfoTabs()
+		// case "secret":
+		// 	infoView.Tabs = getSecretInfoTabs()
+		// case "configMap":
+		// 	infoView.Tabs = getConfigMapInfoTabs()
+	}
+	return nil
 }

@@ -13,7 +13,7 @@ func getNamespaceInfoTabs() []string {
 }
 
 func getPodInfoTabs() []string {
-	return []string{"logs", "description"}
+	return []string{"description", "logs"}
 }
 
 func getJobInfoTabs() []string {

@@ -73,6 +73,12 @@ func (k *K8s) WatchNamespace() (watch.Interface, error) {
 	return wi, nil
 }
 
+func (k *K8s) GetNamespace(ns string) (*v1Core.Namespace, error) {
+	ctx := context.TODO()
+	opts := v1.GetOptions{}
+	return k.client.CoreV1().Namespaces().Get(ctx, ns, opts)
+}
+
 func (k *K8s) WatchPods(namespace string) (watch.Interface, error) {
 	ctx := context.TODO()
 	opts := v1.ListOptions{}

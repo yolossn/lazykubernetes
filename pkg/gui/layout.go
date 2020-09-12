@@ -15,7 +15,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 	minimumWidth := 10
 
 	if termHeight < minimumHeight || termWidth < minimumWidth {
-		v, err := g.SetView("limit", 0, 0, termWidth -1, termHeight - 1, 0)
+		v, err := g.SetView("limit", 0, 0, termWidth-1, termHeight-1, 0)
 		if err != nil {
 			if err.Error() != "unknown view" {
 				return err
@@ -42,7 +42,8 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		clusterInfoView.Highlight = true
 	}
 
-	namespaceViewHeight := termHeight - unitHeight - 1
+	// namespaceViewHeight := termHeight - unitHeight - 1
+	namespaceViewHeight := unitHeight * 2
 	namespaceView, err := g.SetViewBeneath("namespace", "cluster-info", namespaceViewHeight)
 	if err != nil {
 		if err.Error() != "unknown view" {
