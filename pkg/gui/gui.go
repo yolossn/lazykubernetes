@@ -23,8 +23,24 @@ func (gui *Gui) Run() error {
 
 	gui.g = g
 
-	g.SetManager(gocui.ManagerFunc(gui.layout))
+	// shows border select
+	g.Highlight = true
+
+	// Set ColorScheme
+	g.SelFgColor = gocui.ColorGreen
+	g.BgColor = gocui.ColorBlack
+	g.FgColor = gocui.ColorDefault
+
+	// Allow mouse events
 	g.Mouse = true
+	// Set Manager
+	g.SetManager(gocui.ManagerFunc(gui.layout))
+
+	// Set Keybindings
+	err = gui.SetKeybindings(g)
+	if err != nil {
+		return err
+	}
 
 	err = g.MainLoop()
 	return err
