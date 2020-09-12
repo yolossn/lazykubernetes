@@ -1,10 +1,31 @@
 package gui
 
-import "github.com/jesseduffield/gocui"
+import (
+	"github.com/jesseduffield/gocui"
+
+	"github.com/yolossn/lazykubernetes/pkg/constants"
+)
 
 func (gui *Gui) layout(g *gocui.Gui) error {
 
 	termWidth, termHeight := g.Size()
+
+	// minimum height
+	minimumHeight := 9
+	minimumWidth := 10
+
+	if termHeight < miniumHeight || termWidth < minimumWidth {
+		v, err := g.SetView("limit", 0, 0, termWidth -1, termHeight - 1, 0)
+		if err != nil {
+			if err.Error() != "unknown view" {
+				return err
+			}
+			v.Title = constants.GetConstants().NotEnoughSpace
+			v.Wrap = true
+			_, _ = g.SetViewOnTop("limit")
+		}
+		return nil
+	}
 
 	unitHeight := termHeight / 10
 
