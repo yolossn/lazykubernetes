@@ -3,6 +3,7 @@ module github.com/yolossn/lazykubernetes
 go 1.13
 
 require (
+	github.com/common-nighthawk/go-figure v0.0.0-20200609044655-c4b36f998cf2
 	github.com/go-errors/errors v1.1.1 // indirect
 	github.com/imdario/mergo v0.3.8 // indirect
 	github.com/jesseduffield/gocui v0.3.1-0.20200201013258-57fdcf23edc5
