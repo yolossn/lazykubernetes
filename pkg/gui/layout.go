@@ -10,11 +10,11 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 
 	termWidth, termHeight := g.Size()
 
-	// minimum height
+	// minimum size
 	minimumHeight := 9
 	minimumWidth := 10
 
-	if termHeight < miniumHeight || termWidth < minimumWidth {
+	if termHeight < minimumHeight || termWidth < minimumWidth {
 		v, err := g.SetView("limit", 0, 0, termWidth -1, termHeight - 1, 0)
 		if err != nil {
 			if err.Error() != "unknown view" {
