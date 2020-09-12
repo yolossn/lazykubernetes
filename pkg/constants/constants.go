@@ -6,6 +6,6 @@ type Constants struct {
 
 func GetConstants() *Constants{
 	return &Constants{
-		NotEnoughSpace: "Not enough space to render pannels",
+		NotEnoughSpace: "Not enough space to render panels",
 	}
 }
