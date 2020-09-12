@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"path/filepath"
 	"time"
 
@@ -191,7 +190,6 @@ func (k *K8s) ListStatefulsets(namespace string) ([]StatefulsetInfo, error) {
 			CreatedAt:       statefulset.ObjectMeta.CreationTimestamp.Time,
 		}
 		statefulsetList = append(statefulsetList, s)
-		fmt.Println(s)
 	}
 	return statefulsetList, nil
 }
