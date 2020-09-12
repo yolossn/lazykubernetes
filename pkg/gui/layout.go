@@ -32,7 +32,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 
 	unitHeight := termHeight / 10
 
-	leftColumnWidth := termWidth / 4
+	leftColumnWidth := termWidth / 3
 
 	if clusterInfoView, err := g.SetView("cluster-info", 0, 0, leftColumnWidth, unitHeight, gocui.BOTTOM|gocui.RIGHT); err != nil {
 		if err.Error() != "unknown view" {
