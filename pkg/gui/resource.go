@@ -67,7 +67,7 @@ func (gui *Gui) onResourceClick(g *gocui.Gui, v *gocui.View) error {
 func (gui *Gui) handlePodSelect(v *gocui.View) error {
 
 	// Find Selected Pod
-	podSelected := gui.FindSelectedLine(v, len(gui.data.PodData))
+	podSelected := gui.panelStates.Resource.SelectedLine
 	pod := gui.data.PodData[podSelected]
 
 	infoView := gui.getInfoView()
