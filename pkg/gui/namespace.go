@@ -1,9 +1,12 @@
 package gui
 
 import (
-	"fmt"
+	"time"
 
 	"github.com/jesseduffield/gocui"
+	"github.com/olekukonko/tablewriter"
+
+	duration "k8s.io/apimachinery/pkg/util/duration"
 )
 
 func (gui *Gui) getNamespaceView() *gocui.View {
@@ -36,10 +39,37 @@ func (gui *Gui) reRenderNamespace() error {
 
 	gui.g.Update(func(*gocui.Gui) error {
 		nsView.Clear()
-		for _, n := range ns {
-			fmt.Fprintln(nsView, n.Name)
-			fmt.Println(n.Name)
+
+		// make data for namespace tablewriter
+		data := make([][]string, cap(ns))
+
+		for x := 0; x < cap(ns); x++ {
+			data[x] = make([]string, 3)
 		}
+
+		for i, n := range ns {
+			data[i][0] = n.Name
+			data[i][1] = n.Status
+			data[i][2] = duration.HumanDuration(time.Since(n.CreatedAt))
+		}
+
+		// Use table writer to render the data into view
+		// https://github.com/olekukonko/tablewriter#example-10---set-nowhitespace-and-tablepadding-option
+		table := tablewriter.NewWriter(nsView)
+		table.SetAutoWrapText(false)
+		table.SetAutoFormatHeaders(true)
+		table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
+		table.SetAlignment(tablewriter.ALIGN_LEFT)
+		table.SetCenterSeparator("")
+		table.SetColumnSeparator("")
+		table.SetRowSeparator("")
+		table.SetHeaderLine(false)
+		table.SetBorder(false)
+		table.SetTablePadding("\t")
+		table.SetNoWhiteSpace(true)
+		table.AppendBulk(data)
+		table.Render()
+
 		return nil
 	})
 
