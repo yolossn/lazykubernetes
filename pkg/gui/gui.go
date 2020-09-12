@@ -2,16 +2,18 @@ package gui
 
 import (
 	"github.com/jesseduffield/gocui"
+	"github.com/yolossn/lazykubernetes/pkg/client"
 )
 
 var OverlappingEdges = false
 
 type Gui struct {
-	g *gocui.Gui
+	g         *gocui.Gui
+	k8sClient *client.K8s
 }
 
-func NewGui() (*Gui, error) {
-	return &Gui{}, nil
+func NewGui(k8sClient *client.K8s) (*Gui, error) {
+	return &Gui{k8sClient: k8sClient}, nil
 }
 
 func (gui *Gui) Run() error {
@@ -41,6 +43,9 @@ func (gui *Gui) Run() error {
 	if err != nil {
 		return err
 	}
+
+	// Init render
+	go gui.reRenderNamespace()
 
 	err = g.MainLoop()
 	return err

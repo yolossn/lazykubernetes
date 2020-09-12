@@ -1,9 +1,18 @@
 package main
 
-import "github.com/yolossn/lazykubernetes/pkg/app"
+import (
+	"github.com/yolossn/lazykubernetes/pkg/app"
+	"github.com/yolossn/lazykubernetes/pkg/client"
+)
 
 func main() {
-	ui, err := app.NewApp()
+	// Setup k8sClient
+	k8sClient, err := client.Newk8s()
+	if err != nil {
+		panic(err)
+	}
+
+	ui, err := app.NewApp(k8sClient)
 	if err != nil {
 		panic(err)
 	}
