@@ -6,7 +6,7 @@ import (
 	"io"
 
 	"github.com/jesseduffield/gocui"
-	"gopkg.in/yaml.v2"
+	"sigs.k8s.io/yaml"
 )
 
 func (gui *Gui) getResourceView() *gocui.View {
