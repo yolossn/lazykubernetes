@@ -4,6 +4,10 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"time"
+
+	"github.com/yolossn/lazykubernetes/pkg/utils"
+	duration "k8s.io/apimachinery/pkg/util/duration"
 
 	"github.com/jesseduffield/gocui"
 	"sigs.k8s.io/yaml"
@@ -151,6 +155,18 @@ func (gui *Gui) reRenderResource() error {
 	case "pod":
 		gui.setPods(ns)
 		return gui.renderPods()
+	case "job":
+		gui.setJobs(ns)
+		return gui.renderJobs()
+	case "deploy":
+		gui.setDeployments(ns)
+		return gui.renderDeployments()
+	case "secret":
+		gui.setSecrets(ns)
+		return gui.renderSecrets()
+	case "configMap":
+		gui.setConfigMaps(ns)
+		return gui.renderConfigMaps()
 	}
 
 	return nil
@@ -171,6 +187,169 @@ func (gui *Gui) setPods(namespace string) {
 	gui.data.PodData = pods
 }
 
+func (gui *Gui) setJobs(namespace string) {
+	gui.data.rsMux.Lock()
+	defer gui.data.rsMux.Unlock()
+
+	jobs, err := gui.k8sClient.ListJobs(namespace)
+	if err != nil {
+
+	}
+	gui.data.JobData = jobs
+}
+
+func (gui *Gui) setDeployments(namespace string) {
+	gui.data.rsMux.Lock()
+	defer gui.data.rsMux.Unlock()
+
+	deployments, err := gui.k8sClient.ListDeployments(namespace)
+	if err != nil {
+
+	}
+	gui.data.DeploymentData = deployments
+}
+
+func (gui *Gui) setConfigMaps(namespace string) {
+	gui.data.rsMux.Lock()
+	defer gui.data.rsMux.Unlock()
+
+	configmaps, err := gui.k8sClient.ListConfigMap(namespace)
+	if err != nil {
+
+	}
+	gui.data.ConfigMapData = configmaps
+}
+
+func (gui *Gui) setSecrets(namespace string) {
+	gui.data.rsMux.Lock()
+	defer gui.data.rsMux.Unlock()
+
+	secrets, err := gui.k8sClient.ListSecrets(namespace)
+	if err != nil {
+
+	}
+	gui.data.SecretData = secrets
+}
+
+func (gui *Gui) renderSecrets() error {
+	rsView := gui.getResourceView()
+	if rsView == nil {
+		return nil
+	}
+
+	gui.data.rsMux.RLock()
+	defer gui.data.rsMux.RUnlock()
+
+	rsView.Clear()
+	secrets := gui.data.SecretData
+	data := make([][]string, cap(secrets))
+
+	for i := 0; i < cap(secrets); i++ {
+		data[i] = make([]string, 4)
+	}
+	headers := []string{"NAME", "TYPE", "DATA", "AGE"}
+
+	for i, secret := range secrets {
+		data[i][0] = secret.Name
+		data[i][1] = secret.Type
+		data[i][2] = fmt.Sprintf("%v", secret.Data)
+		data[i][3] = duration.HumanDuration(time.Since(secret.CreatedAt))
+	}
+
+	utils.RenderTable(rsView, data, headers)
+
+	return nil
+}
+
+func (gui *Gui) renderConfigMaps() error {
+	rsView := gui.getResourceView()
+	if rsView == nil {
+		return nil
+	}
+
+	gui.data.rsMux.RLock()
+	defer gui.data.rsMux.RUnlock()
+
+	rsView.Clear()
+	configmaps := gui.data.ConfigMapData
+	data := make([][]string, cap(configmaps))
+
+	for i := 0; i < cap(configmaps); i++ {
+		data[i] = make([]string, 3)
+	}
+	headers := []string{"NAME", "DATA", "AGE"}
+
+	for i, configmap := range configmaps {
+		data[i][0] = configmap.Name
+		data[i][1] = fmt.Sprintf("%v", configmap.Data)
+		data[i][2] = duration.HumanDuration(time.Since(configmap.CreatedAt))
+	}
+
+	utils.RenderTable(rsView, data, headers)
+
+	return nil
+}
+
+func (gui *Gui) renderDeployments() error {
+	rsView := gui.getResourceView()
+	if rsView == nil {
+		return nil
+	}
+
+	gui.data.rsMux.RLock()
+	defer gui.data.rsMux.RUnlock()
+
+	rsView.Clear()
+	deployments := gui.data.DeploymentData
+	data := make([][]string, cap(deployments))
+
+	for i := 0; i < cap(deployments); i++ {
+		data[i] = make([]string, 5)
+	}
+	headers := []string{"NAME", "READY", "UP-TO-DATE", "AVAILABLE", "AGE"}
+	for i, deployment := range deployments {
+		data[i][0] = deployment.Name
+		data[i][1] = fmt.Sprintf("%v/%v", deployment.ReadyReplicas, deployment.Replicas)
+		data[i][2] = fmt.Sprintf("%v", deployment.UpdatedReplicas)
+		data[i][3] = fmt.Sprintf("%v", deployment.Available)
+		data[i][4] = duration.HumanDuration(time.Since(deployment.CreatedAt))
+	}
+
+	utils.RenderTable(rsView, data, headers)
+
+	return nil
+}
+
+func (gui *Gui) renderJobs() error {
+	rsView := gui.getResourceView()
+	if rsView == nil {
+		return nil
+	}
+
+	gui.data.rsMux.RLock()
+	defer gui.data.rsMux.RUnlock()
+
+	rsView.Clear()
+	jobs := gui.data.JobData
+
+	data := make([][]string, cap(jobs))
+
+	for x := 0; x < cap(jobs); x++ {
+		data[x] = make([]string, 4)
+	}
+	headers := []string{"NAME", "COMPLETIONS", "DURATION", "AGE"}
+	for i, job := range jobs {
+		data[i][0] = job.Name
+		data[i][1] = fmt.Sprintf("%v/%v", job.Succeeded, job.Succeeded + job.Failed)
+		data[i][2] = duration.HumanDuration(job.CompletedAt.Sub(job.CreatedAt))
+		data[i][3] = duration.HumanDuration(time.Since(job.CreatedAt))
+	}
+
+	utils.RenderTable(rsView, data, headers)
+
+	return nil
+}
+
 func (gui *Gui) renderPods() error {
 
 	rsView := gui.getResourceView()
@@ -183,9 +362,23 @@ func (gui *Gui) renderPods() error {
 
 	rsView.Clear()
 	pods := gui.data.PodData
-	for _, pod := range pods {
-		fmt.Fprintln(rsView, pod.Name)
+
+	data := make([][]string, cap(pods))
+
+	for x := 0; x < cap(pods); x++ {
+		data[x] = make([]string, 5)
 	}
+	headers := []string{"NAME", "READY", "STATUS", "RESTARTS", "AGE"}
+	for i, pod := range pods {
+		data[i][0] = pod.Name
+		data[i][1] = fmt.Sprintf("%v/%v", pod.ReadyContainers, pod.TotalContainers)
+		data[i][2] = pod.Status
+		data[i][3] = fmt.Sprintf("%v", pod.Restarts)
+		data[i][4] = duration.HumanDuration(time.Since(pod.CreatedAt))
+	}
+
+	utils.RenderTable(rsView, data, headers)
+
 	return nil
 }
 
