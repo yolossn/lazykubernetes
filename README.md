@@ -13,7 +13,7 @@ Memorising commands and checking updates constantly is an issue which anyone who
 ## In Action
 
 <p align="center">
-  <img width="580" height="400" src="https://user-images.githubusercontent.com/20211167/93019297-c6d61b80-f5f3-11ea-847a-08543d8deb87.gif">
+  <img width="800" height="600" src="https://user-images.githubusercontent.com/20211167/93019297-c6d61b80-f5f3-11ea-847a-08543d8deb87.gif">
 </p>
 
 
