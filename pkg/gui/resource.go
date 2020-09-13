@@ -58,6 +58,11 @@ func (gui *Gui) onResourceClick(g *gocui.Gui, v *gocui.View) error {
 func (gui *Gui) handleJobSelect(v *gocui.View) error {
 	// Find Selected Job
 	jobSelected := gui.panelStates.Resource.SelectedLine
+
+	if jobSelected < 0 || jobSelected > len(gui.data.JobData) {
+		return nil
+	}
+
 	job := gui.data.JobData[jobSelected]
 
 	infoView := gui.getInfoView()
@@ -89,6 +94,11 @@ func (gui *Gui) handleJobSelect(v *gocui.View) error {
 func (gui *Gui) handleDeploymentSelect(v *gocui.View) error {
 	// Find Selected Deployment
 	deploymentSelected := gui.panelStates.Resource.SelectedLine
+
+	if deploymentSelected < 0 || deploymentSelected > len(gui.data.DeploymentData) {
+		return nil
+	}
+
 	deployment := gui.data.DeploymentData[deploymentSelected]
 
 	infoView := gui.getInfoView()
@@ -120,6 +130,11 @@ func (gui *Gui) handleDeploymentSelect(v *gocui.View) error {
 func (gui *Gui) handleConfigMapSelect(v *gocui.View) error {
 	// Find Selected ConfigMap
 	configMapSelected := gui.panelStates.Resource.SelectedLine
+
+	if configMapSelected < 0 || configMapSelected > len(gui.data.ConfigMapData) {
+		return nil
+	}
+
 	configMap := gui.data.ConfigMapData[configMapSelected]
 
 	infoView := gui.getInfoView()
@@ -151,6 +166,11 @@ func (gui *Gui) handleConfigMapSelect(v *gocui.View) error {
 func (gui *Gui) handleSecretSelect(v *gocui.View) error {
 	// Find Selected Secret
 	secretSelected := gui.panelStates.Resource.SelectedLine
+
+	if secretSelected < 0 || secretSelected > len(gui.data.SecretData) {
+		return nil
+	}
+
 	secret := gui.data.SecretData[secretSelected]
 
 	infoView := gui.getInfoView()
@@ -182,6 +202,11 @@ func (gui *Gui) handleSecretSelect(v *gocui.View) error {
 func (gui *Gui) handleServiceSelect(v *gocui.View) error {
 	// Find Selected Service
 	serviceSelected := gui.panelStates.Resource.SelectedLine
+
+	if serviceSelected < 0 || serviceSelected > len(gui.data.ServiceData) {
+		return nil
+	}
+
 	service := gui.data.ServiceData[serviceSelected]
 
 	infoView := gui.getInfoView()
@@ -214,6 +239,10 @@ func (gui *Gui) handlePodSelect(v *gocui.View) error {
 
 	// Find Selected Pod
 	podSelected := gui.panelStates.Resource.SelectedLine
+	if podSelected < 0 || podSelected > len(gui.data.PodData) {
+		return nil
+	}
+
 	pod := gui.data.PodData[podSelected]
 
 	infoView := gui.getInfoView()
