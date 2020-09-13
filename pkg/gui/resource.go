@@ -31,39 +31,6 @@ func (gui *Gui) onResourceClick(g *gocui.Gui, v *gocui.View) error {
 		gui.panelStates.Resource.SelectedLine = gui.FindSelectedLine(v, len(gui.data.PodData))
 		return gui.handlePodSelect(v)
 	}
-	// podSelected := gui.FindSelectedLine(v, len(gui.data.PodData))
-	// infoView.Clear()
-	// pod := gui.data.PodData[podSelected]
-
-	// Description 😘
-	// data, err := gui.k8sClient.DescribePod(pod.Namespace, pod.Name)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// output, err := yaml.Marshal(data)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// fmt.Fprintln(infoView, string(output))
-
-	// gui.g.Update(func(*gocui.Gui) error {
-	// 	req := gui.k8sClient.StreamPodLogs(pod.Namespace, pod.Name)
-	// 	ctx := context.TODO()
-	// 	readCloser, err := req.Stream(ctx)
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 	}
-	// 	infoView.Clear()
-	// 	infoView.Autoscroll = true
-	// 	go func() {
-	// 		for {
-	// 			io.Copy(infoView, readCloser)
-	// 		}
-	// 	}()
-	// 	return nil
-	// })
 
 	return nil
 }
@@ -140,8 +107,7 @@ func (gui *Gui) onResourceTabClick(tabIndex int) error {
 		infoView.Tabs = getConfigMapInfoTabs()
 	}
 
-	return nil
-
+	return gui.reRenderResource()
 }
 
 func (gui *Gui) reRenderResource() error {
@@ -391,7 +357,7 @@ func (gui *Gui) renderJobs() error {
 	headers := []string{"NAME", "COMPLETIONS", "DURATION", "AGE"}
 	for i, job := range jobs {
 		data[i][0] = job.Name
-		data[i][1] = fmt.Sprintf("%v/%v", job.Succeeded, job.Succeeded + job.Failed)
+		data[i][1] = fmt.Sprintf("%v/%v", job.Succeeded, job.Succeeded+job.Failed)
 		data[i][2] = duration.HumanDuration(job.CompletedAt.Sub(job.CreatedAt))
 		data[i][3] = duration.HumanDuration(time.Since(job.CreatedAt))
 	}
