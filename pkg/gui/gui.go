@@ -16,7 +16,7 @@ type data struct {
 	PodData        []client.PodInfo
 	JobData        []client.JobInfo
 	DeploymentData []client.DeploymentInfo
-	ServiceData   []client.ServiceInfo
+	ServiceData    []client.ServiceInfo
 	SecretData     []client.SecretInfo
 	ConfigMapData  []client.ConfigMapInfo
 	rsMux          sync.RWMutex
@@ -73,6 +73,9 @@ func (gui *Gui) Run() error {
 	go gui.goEvery(time.Second, gui.reRenderNamespace)
 	go gui.goEvery(time.Second, gui.reRenderResource)
 	go gui.goEvery(time.Second, gui.reRenderClusterInfo)
+
+	// highlight cluster view on start
+	go gui.highlightClusterInfoView()
 
 	err = g.MainLoop()
 	return err

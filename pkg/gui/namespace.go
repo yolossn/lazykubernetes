@@ -82,7 +82,6 @@ func (gui *Gui) getNSCount() int {
 	return len(gui.data.NamespaceData) + 1
 }
 
-// func (gui *Gui) updateAndWatchNamespaceData() error {
 func (gui *Gui) WatchNamespace() error {
 	// Init fetch data
 	_ = gui.updateNSData()
