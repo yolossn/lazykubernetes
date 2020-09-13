@@ -6,3 +6,6 @@ a terminal CUI for kubernetes
 
 This tool is created as a part of [FOSS Hack](https://fossunited.org/hackathon)
 
+# Install
+
+`brew install yolossn/tap/lazykubernetes`
