@@ -38,7 +38,7 @@ This tool was created as a part of [FossHack](https://fossunited.org/hackathon) 
 Have feedback or facing any issues ? Please create an [issue](https://github.com/yolossn/lazykubernetes/issues)
 
 ## Contributors
-- [Nithyananda](https://github.com/nityanandagohain)
+- [Nityananda](https://github.com/nityanandagohain)
 - [Gnanesh](https://github.com/GnaneshKunal)
 
 ## Credits
