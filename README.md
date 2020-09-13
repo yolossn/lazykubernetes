@@ -34,8 +34,10 @@ Just type lazykubernetes in your terminal
 
 ## Room for development
 
-This tool was created as a part of [FossHack](https://fossunited.org/hackathon) and is in alpha version. We are committed to update the tool for better experience.
-Have feedback or facing any issues ? Please create an [issue](https://github.com/yolossn/lazykubernetes/issues)
+This tool was rapidly prototyped during two days [FossHack](https://fossunited.org/hackathon) and is in alpha version. We are committed to update the tool for better experience.
+Have feedback or facing any issues ? 
+
+Please create an [issue](https://github.com/yolossn/lazykubernetes/issues)
 
 ## Contributors
 - [Nityananda](https://github.com/nityanandagohain)
