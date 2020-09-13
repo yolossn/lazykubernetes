@@ -39,6 +39,9 @@ func (gui *Gui) onClusterInfoClick(g *gocui.Gui, v *gocui.View) error {
 func (gui *Gui) reRenderClusterInfo() error {
 
 	clusterView := gui.getClusterInfoView()
+	if clusterView == nil {
+		return nil
+	}
 
 	info, err := gui.k8sClient.GetServerInfo()
 	if err != nil {
