@@ -19,7 +19,9 @@ type data struct {
 	ServiceData    []client.ServiceInfo
 	SecretData     []client.SecretInfo
 	ConfigMapData  []client.ConfigMapInfo
+	NodeData       []client.NodeInfo
 	rsMux          sync.RWMutex
+	nodeMux        sync.RWMutex
 }
 
 type Gui struct {
@@ -68,11 +70,13 @@ func (gui *Gui) Run() error {
 	// Update Namespace data
 	go gui.WatchNamespace()
 	go gui.WatchPods()
+	go gui.WatchNodes()
 
 	// reRender
 	go gui.goEvery(time.Second, gui.reRenderNamespace)
 	go gui.goEvery(time.Second, gui.reRenderResource)
 	go gui.goEvery(time.Second, gui.reRenderClusterInfo)
+	go gui.goEvery(time.Second, gui.reRenderNodeInfo)
 
 	// highlight cluster view on start
 	go gui.highlightClusterInfoView()

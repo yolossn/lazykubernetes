@@ -429,3 +429,13 @@ func (k *K8s) ListNode() ([]NodeInfo, error) {
 	}
 	return nodeList, nil
 }
+
+func (k *K8s) WatchNodes() (watch.Interface, error) {
+	ctx := context.TODO()
+	opts := v1.ListOptions{}
+	wi, err := k.client.CoreV1().Nodes().Watch(ctx, opts)
+	if err != nil {
+		return nil, err
+	}
+	return wi, nil
+}
