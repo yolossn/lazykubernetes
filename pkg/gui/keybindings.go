@@ -26,6 +26,38 @@ func (gui *Gui) SetKeybindings(g *gocui.Gui) error {
 		return err
 	}
 
+	// Arrow keys
+	if err := g.SetKeybinding("namespace", nil, gocui.KeyArrowDown, gocui.ModNone, gui.handleNSKeyUp); err != nil {
+		return err
+	}
+
+	if err := g.SetKeybinding("namespace", nil, gocui.KeyArrowUp, gocui.ModNone, gui.handleNSKeyDown); err != nil {
+		return err
+	}
+
+	if err := g.SetKeybinding("resource", nil, gocui.KeyArrowDown, gocui.ModNone, gui.handleResourceKeyUp); err != nil {
+		return err
+	}
+
+	if err := g.SetKeybinding("resource", nil, gocui.KeyArrowUp, gocui.ModNone, gui.handleResourceKeyDown); err != nil {
+		return err
+	}
+
+	// Info Scroll
+	if err := g.SetKeybinding("info", nil, gocui.KeyArrowLeft, gocui.ModNone, gui.scrollLeftInfo); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("info", nil, gocui.KeyArrowRight, gocui.ModNone, gui.scrollRightInfo); err != nil {
+		return err
+	}
+
+	if err := g.SetKeybinding("info", nil, gocui.KeyArrowUp, gocui.ModNone, gui.scrollUpInfo); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("info", nil, gocui.KeyArrowDown, gocui.ModNone, gui.scrollDownInfo); err != nil {
+		return err
+	}
+
 	// Tab click
 	if err := g.SetTabClickBinding("resource", gui.onResourceTabClick); err != nil {
 		return err

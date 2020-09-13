@@ -5,9 +5,12 @@ import (
 	"path/filepath"
 	"time"
 
+	v1Core "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
+	"k8s.io/apimachinery/pkg/version"
+	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
+	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 )
@@ -37,6 +40,10 @@ func Newk8s() (*K8s, error) {
 	return &K8s{clientset}, nil
 }
 
+func (k *K8s) GetServerInfo() (*version.Info, error) {
+	return k.client.DiscoveryClient.ServerVersion()
+}
+
 type NamespaceInfo struct {
 	Name      string
 	Status    string
@@ -59,6 +66,34 @@ func (k *K8s) ListNamespace() ([]NamespaceInfo, error) {
 	return ns, nil
 }
 
+// TODO: Verify timeout and handle it
+func (k *K8s) WatchNamespace() (watch.Interface, error) {
+	ctx := context.TODO()
+	opts := v1.ListOptions{}
+	wi, err := k.client.CoreV1().Namespaces().Watch(ctx, opts)
+	if err != nil {
+		return nil, err
+	}
+	return wi, nil
+}
+
+func (k *K8s) GetNamespace(ns string) (*v1Core.Namespace, error) {
+	ctx := context.TODO()
+	opts := v1.GetOptions{}
+	return k.client.CoreV1().Namespaces().Get(ctx, ns, opts)
+}
+
+func (k *K8s) WatchPods(namespace string) (watch.Interface, error) {
+	ctx := context.TODO()
+	opts := v1.ListOptions{}
+
+	wi, err := k.client.CoreV1().Pods(namespace).Watch(ctx, opts)
+	if err != nil {
+		return nil, err
+	}
+	return wi, nil
+}
+
 type PodInfo struct {
 	Name            string
 	Namespace       string
@@ -70,6 +105,7 @@ type PodInfo struct {
 }
 
 func (k *K8s) ListPods(namespace string) ([]PodInfo, error) {
+
 	ctx := context.TODO()
 	opts := v1.ListOptions{}
 	pods, _ := k.client.CoreV1().Pods(namespace).List(ctx, opts)
@@ -100,6 +136,23 @@ func (k *K8s) ListPods(namespace string) ([]PodInfo, error) {
 		podList = append(podList, p)
 	}
 	return podList, nil
+}
+
+func (k *K8s) DescribePod(ns string, podname string) (*v1Core.Pod, error) {
+	ctx := context.TODO()
+	opts := v1.GetOptions{}
+
+	out, err := k.client.CoreV1().Pods(ns).Get(ctx, podname, opts)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (k *K8s) StreamPodLogs(ns string, podname string) *restclient.Request {
+	opts := &v1Core.PodLogOptions{Follow: true}
+	request := k.client.CoreV1().Pods(ns).GetLogs(podname, opts)
+	return request
 }
 
 type JobInfo struct {
@@ -162,6 +215,53 @@ func (k *K8s) ListDeployments(namespace string) ([]DeploymentInfo, error) {
 		deploymentList = append(deploymentList, d)
 	}
 	return deploymentList, nil
+}
+
+type ServiceInfoPort struct {
+	Name       string
+	Protocol   string
+	Port       int32
+	TargetPort int32
+}
+
+type ServiceInfo struct {
+	Name       string
+	Namespace  string
+	Type       string
+	ClusterIP  string
+	ExternalIP string
+	Ports      []ServiceInfoPort
+	CreatedAt  time.Time
+}
+
+func (k *K8s) ListServices(namespace string) ([]ServiceInfo, error) {
+	ctx := context.TODO()
+	opts := v1.ListOptions{}
+	services, _ := k.client.CoreV1().Services(namespace).List(ctx, opts)
+	serviceList := []ServiceInfo{}
+	for _, service := range services.Items {
+		serviceInfoPorts := []ServiceInfoPort{}
+		for _, sPort := range service.Spec.Ports {
+			serviceInfoPort := ServiceInfoPort{
+				Name:       sPort.Name,
+				Protocol:   string(sPort.Protocol),
+				Port:       int32(sPort.Port),
+				TargetPort: sPort.TargetPort.IntVal,
+			}
+			serviceInfoPorts = append(serviceInfoPorts, serviceInfoPort)
+		}
+		s := ServiceInfo{
+			Name:       service.ObjectMeta.Name,
+			Namespace:  service.ObjectMeta.Namespace,
+			Type:       string(service.Spec.Type),
+			ClusterIP:  service.Spec.ClusterIP,
+			ExternalIP: "<Not-Implemented>", // TODO: Implement external ip
+			Ports:      serviceInfoPorts,
+			CreatedAt:  service.ObjectMeta.CreationTimestamp.Time,
+		}
+		serviceList = append(serviceList, s)
+	}
+	return serviceList, nil
 }
 
 type StatefulsetInfo struct {
