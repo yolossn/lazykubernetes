@@ -37,6 +37,10 @@ func (gui *Gui) updateNodeData() error {
 	return nil
 }
 
+func (gui *Gui) getNodeCount() int {
+	return len(gui.data.NodeData) + 1
+}
+
 func (gui *Gui) reRenderNodeInfo() error {
 
 	nodeView := gui.getNodeInfoView()
@@ -44,7 +48,7 @@ func (gui *Gui) reRenderNodeInfo() error {
 		return nil
 	}
 
-	if gui.getNSCount() == 0 {
+	if gui.getNodeCount() == 0 {
 		return nil
 	}
 

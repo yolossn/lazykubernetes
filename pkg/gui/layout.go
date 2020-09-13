@@ -42,7 +42,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		clusterInfoView.Highlight = true
 	}
 
-	namespaceViewHeight := termHeight - unitHeight - 7
+	namespaceViewHeight := termHeight - unitHeight - 8
 	namespaceView, err := g.SetViewBeneath("namespace", "cluster-info", namespaceViewHeight)
 	if err != nil {
 		if err.Error() != "unknown view" {
