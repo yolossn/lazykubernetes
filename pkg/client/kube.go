@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"path/filepath"
 	"time"
 
