@@ -1,9 +1,12 @@
 package gui
 
 import (
-	"fmt"
+	"time"
+
+	"github.com/yolossn/lazykubernetes/pkg/utils"
 
 	"github.com/jesseduffield/gocui"
+	duration "k8s.io/apimachinery/pkg/util/duration"
 )
 
 func (gui *Gui) getNamespaceView() *gocui.View {
@@ -36,10 +39,22 @@ func (gui *Gui) reRenderNamespace() error {
 
 	gui.g.Update(func(*gocui.Gui) error {
 		nsView.Clear()
-		for _, n := range ns {
-			fmt.Fprintln(nsView, n.Name)
-			fmt.Println(n.Name)
+
+		// make data for namespace tablewriter
+		data := make([][]string, cap(ns))
+
+		for x := 0; x < cap(ns); x++ {
+			data[x] = make([]string, 3)
 		}
+
+		for i, n := range ns {
+			data[i][0] = n.Name
+			data[i][1] = n.Status
+			data[i][2] = duration.HumanDuration(time.Since(n.CreatedAt))
+		}
+
+		utils.RenderTable(nsView, data)
+
 		return nil
 	})
 

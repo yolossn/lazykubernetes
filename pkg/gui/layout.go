@@ -1,14 +1,38 @@
 package gui
 
-import "github.com/jesseduffield/gocui"
+import (
+	"github.com/jesseduffield/gocui"
+
+	"github.com/yolossn/lazykubernetes/pkg/constants"
+)
 
 func (gui *Gui) layout(g *gocui.Gui) error {
 
 	termWidth, termHeight := g.Size()
 
+	// minimum size
+	minimumHeight := 9
+	minimumWidth := 10
+
+	if termHeight < minimumHeight || termWidth < minimumWidth {
+		v, err := g.SetView("limit", 0, 0, termWidth -1, termHeight - 1, 0)
+		if err != nil {
+			if err.Error() != "unknown view" {
+				return err
+			}
+			v.Title = constants.GetConstants().NotEnoughSpace
+			v.Wrap = true
+			_, _ = g.SetViewOnTop("limit")
+		}
+		return nil
+	}
+
+	_, _ = g.SetViewOnBottom("limit")
+	g.DeleteView("limit")
+
 	unitHeight := termHeight / 10
 
-	leftColumnWidth := termWidth / 4
+	leftColumnWidth := termWidth / 3
 
 	if clusterInfoView, err := g.SetView("cluster-info", 0, 0, leftColumnWidth, unitHeight, gocui.BOTTOM|gocui.RIGHT); err != nil {
 		if err.Error() != "unknown view" {
