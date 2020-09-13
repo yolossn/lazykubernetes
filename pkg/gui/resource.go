@@ -30,10 +30,188 @@ func (gui *Gui) onResourceClick(g *gocui.Gui, v *gocui.View) error {
 		infoView.Tabs = getPodInfoTabs()
 		gui.panelStates.Resource.SelectedLine = gui.FindSelectedLine(v, len(gui.data.PodData))
 		return gui.handlePodSelect(v)
+	case "job":
+		infoView.Tabs = getJobInfoTabs()
+		gui.panelStates.Resource.SelectedLine = gui.FindSelectedLine(v, len(gui.data.JobData))
+		return gui.handleJobSelect(v)
+	case "deploy":
+		infoView.Tabs = getDeployInfoTabs()
+		gui.panelStates.Resource.SelectedLine = gui.FindSelectedLine(v, len(gui.data.DeploymentData))
+		return gui.handleDeploymentSelect(v)
+	case "service":
+		infoView.Tabs = getServiceInfoTabs()
+		gui.panelStates.Resource.SelectedLine = gui.FindSelectedLine(v, len(gui.data.ServiceData))
+		return gui.handleServiceSelect(v)
+	case "configMap":
+		infoView.Tabs = getConfigMapInfoTabs()
+		gui.panelStates.Resource.SelectedLine = gui.FindSelectedLine(v, len(gui.data.ConfigMapData))
+		return gui.handleConfigMapSelect(v)
+	case "secret":
+		infoView.Tabs = getSecretInfoTabs()
+		gui.panelStates.Resource.SelectedLine = gui.FindSelectedLine(v, len(gui.data.SecretData))
+		return gui.handleSecretSelect(v)
 	}
 
 	return nil
 }
+
+func (gui *Gui) handleJobSelect(v *gocui.View) error {
+	// Find Selected Job
+	jobSelected := gui.panelStates.Resource.SelectedLine
+	job := gui.data.JobData[jobSelected]
+
+	infoView := gui.getInfoView()
+
+	err := gui.focusPoint(0, gui.panelStates.Resource.SelectedLine, len(gui.data.JobData), v)
+	if err != nil {
+		return err
+	}
+
+	// Find the tab in info panel
+	switch getJobInfoTabs()[gui.panelStates.Info.TabIndex] {
+	case "description":
+		infoView.Clear()
+		data, err := gui.k8sClient.DescribeJob(job.Namespace, job.Name)
+		if err != nil {
+			return err
+		}
+
+		output, err := yaml.Marshal(data)
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprintln(infoView, string(output))
+	}
+	return nil
+}
+
+func (gui *Gui) handleDeploymentSelect(v *gocui.View) error {
+	// Find Selected Deployment
+	deploymentSelected := gui.panelStates.Resource.SelectedLine
+	deployment := gui.data.DeploymentData[deploymentSelected]
+
+	infoView := gui.getInfoView()
+
+	err := gui.focusPoint(0, gui.panelStates.Resource.SelectedLine, len(gui.data.DeploymentData), v)
+	if err != nil {
+		return err
+	}
+
+	// Find the tab in info panel
+	switch getDeployInfoTabs()[gui.panelStates.Info.TabIndex] {
+	case "description":
+		infoView.Clear()
+		data, err := gui.k8sClient.DescribeDeployment(deployment.Namespace, deployment.Name)
+		if err != nil {
+			return err
+		}
+
+		output, err := yaml.Marshal(data)
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprintln(infoView, string(output))
+	}
+	return nil
+}
+
+func (gui *Gui) handleConfigMapSelect(v *gocui.View) error {
+	// Find Selected ConfigMap
+	configMapSelected := gui.panelStates.Resource.SelectedLine
+	configMap := gui.data.ConfigMapData[configMapSelected]
+
+	infoView := gui.getInfoView()
+
+	err := gui.focusPoint(0, gui.panelStates.Resource.SelectedLine, len(gui.data.ConfigMapData), v)
+	if err != nil {
+		return err
+	}
+
+	// Find the tab in info panel
+	switch getConfigMapInfoTabs()[gui.panelStates.Info.TabIndex] {
+	case "description":
+		infoView.Clear()
+		data, err := gui.k8sClient.DescribeConfigMap(configMap.Namespace, configMap.Name)
+		if err != nil {
+			return err
+		}
+
+		output, err := yaml.Marshal(data)
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprintln(infoView, string(output))
+	}
+	return nil
+}
+
+func (gui *Gui) handleSecretSelect(v *gocui.View) error {
+	// Find Selected Secret
+	secretSelected := gui.panelStates.Resource.SelectedLine
+	secret := gui.data.SecretData[secretSelected]
+
+	infoView := gui.getInfoView()
+
+	err := gui.focusPoint(0, gui.panelStates.Resource.SelectedLine, len(gui.data.SecretData), v)
+	if err != nil {
+		return err
+	}
+
+	// Find the tab in info panel
+	switch getSecretInfoTabs()[gui.panelStates.Info.TabIndex] {
+	case "description":
+		infoView.Clear()
+		data, err := gui.k8sClient.DescribeSecret(secret.Namespace, secret.Name)
+		if err != nil {
+			return err
+		}
+
+		output, err := yaml.Marshal(data)
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprintln(infoView, string(output))
+	}
+	return nil
+}
+
+
+
+func (gui *Gui) handleServiceSelect(v *gocui.View) error {
+	// Find Selected Service
+	serviceSelected := gui.panelStates.Resource.SelectedLine
+	service := gui.data.ServiceData[serviceSelected]
+
+	infoView := gui.getInfoView()
+
+	err := gui.focusPoint(0, gui.panelStates.Resource.SelectedLine, len(gui.data.ServiceData), v)
+	if err != nil {
+		return err
+	}
+
+	// Find the tab in info panel
+	switch getServiceInfoTabs()[gui.panelStates.Info.TabIndex] {
+	case "description":
+		infoView.Clear()
+		data, err := gui.k8sClient.DescribeService(service.Namespace, service.Name)
+		if err != nil {
+			return err
+		}
+
+		output, err := yaml.Marshal(data)
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprintln(infoView, string(output))
+	}
+	return nil
+}
+
 
 func (gui *Gui) handlePodSelect(v *gocui.View) error {
 
@@ -49,7 +227,7 @@ func (gui *Gui) handlePodSelect(v *gocui.View) error {
 	}
 
 	// Find the tab in info panel
-	switch getPodInfoTabs()[gui.panelStates.Resource.TabIndex] {
+	switch getPodInfoTabs()[gui.panelStates.Info.TabIndex] {
 	case "logs":
 		infoView.Clear()
 		gui.g.Update(func(*gocui.Gui) error {
@@ -417,16 +595,21 @@ func (gui *Gui) handleResourceKeyUp(g *gocui.Gui, v *gocui.View) error {
 	case "pod":
 		gui.changeSelectedLine(&gui.panelStates.Resource.SelectedLine, len(gui.data.PodData), false)
 		return gui.handlePodSelect(v)
-		// case "job":
-		// 	infoView.Tabs = getJobInfoTabs()
-		// case "deploy":
-		// 	infoView.Tabs = getDeployInfoTabs()
-		// case "service":
-		// 	infoView.Tabs = getServiceInfoTabs()
-		// case "secret":
-		// 	infoView.Tabs = getSecretInfoTabs()
-		// case "configMap":
-		// 	infoView.Tabs = getConfigMapInfoTabs()
+	case "job":
+		gui.changeSelectedLine(&gui.panelStates.Resource.SelectedLine, len(gui.data.JobData), false)
+		return gui.handleJobSelect(v)
+	case "deploy":
+		gui.changeSelectedLine(&gui.panelStates.Resource.SelectedLine, len(gui.data.DeploymentData), true)
+		return gui.handleDeploymentSelect(v)
+	case "service":
+		gui.changeSelectedLine(&gui.panelStates.Resource.SelectedLine, len(gui.data.ServiceData), false)
+		return gui.handleServiceSelect(v)
+	case "secret":
+		gui.changeSelectedLine(&gui.panelStates.Resource.SelectedLine, len(gui.data.SecretData), false)
+		return gui.handleSecretSelect(v)
+	case "configMap":
+		gui.changeSelectedLine(&gui.panelStates.Resource.SelectedLine, len(gui.data.ConfigMapData), false)
+		return gui.handleConfigMapSelect(v)
 	}
 	return nil
 }
@@ -436,16 +619,21 @@ func (gui *Gui) handleResourceKeyDown(g *gocui.Gui, v *gocui.View) error {
 	case "pod":
 		gui.changeSelectedLine(&gui.panelStates.Resource.SelectedLine, len(gui.data.PodData), true)
 		return gui.handlePodSelect(v)
-		// case "job":
-		// 	infoView.Tabs = getJobInfoTabs()
-		// case "deploy":
-		// 	infoView.Tabs = getDeployInfoTabs()
-		// case "service":
-		// 	infoView.Tabs = getServiceInfoTabs()
-		// case "secret":
-		// 	infoView.Tabs = getSecretInfoTabs()
-		// case "configMap":
-		// 	infoView.Tabs = getConfigMapInfoTabs()
+	case "job":
+		gui.changeSelectedLine(&gui.panelStates.Resource.SelectedLine, len(gui.data.JobData), true)
+		return gui.handleJobSelect(v)
+	case "deploy":
+		gui.changeSelectedLine(&gui.panelStates.Resource.SelectedLine, len(gui.data.DeploymentData), true)
+		return gui.handleDeploymentSelect(v)
+	case "service":
+		gui.changeSelectedLine(&gui.panelStates.Resource.SelectedLine, len(gui.data.ServiceData), false)
+		return gui.handleServiceSelect(v)
+	case "secret":
+		gui.changeSelectedLine(&gui.panelStates.Resource.SelectedLine, len(gui.data.SecretData), false)
+		return gui.handleSecretSelect(v)
+	case "configMap":
+		gui.changeSelectedLine(&gui.panelStates.Resource.SelectedLine, len(gui.data.ConfigMapData), false)
+		return gui.handleConfigMapSelect(v)
 	}
 	return nil
 }

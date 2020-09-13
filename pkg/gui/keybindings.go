@@ -35,6 +35,14 @@ func (gui *Gui) SetKeybindings(g *gocui.Gui) error {
 		return err
 	}
 
+	if err := g.SetKeybinding("namespace", nil, gocui.MouseWheelDown, gocui.ModNone, gui.handleNSKeyUp); err != nil {
+		return err
+	}
+
+	if err := g.SetKeybinding("namespace", nil, gocui.MouseWheelUp, gocui.ModNone, gui.handleNSKeyDown); err != nil {
+		return err
+	}
+
 	if err := g.SetKeybinding("resource", nil, gocui.KeyArrowDown, gocui.ModNone, gui.handleResourceKeyUp); err != nil {
 		return err
 	}
@@ -58,12 +66,19 @@ func (gui *Gui) SetKeybindings(g *gocui.Gui) error {
 		return err
 	}
 
+	if err := g.SetKeybinding("info", nil, gocui.MouseWheelUp, gocui.ModNone, gui.scrollUpInfo); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("info", nil, gocui.MouseWheelDown, gocui.ModNone, gui.scrollDownInfo); err != nil {
+		return err
+	}
+
 	// Tab click
 	if err := g.SetTabClickBinding("resource", gui.onResourceTabClick); err != nil {
 		return err
 	}
 
-	if err := g.SetTabClickBinding("info", gui.onInfoTabCick); err != nil {
+	if err := g.SetTabClickBinding("info", gui.onInfoTabClick); err != nil {
 		return err
 	}
 

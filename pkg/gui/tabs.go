@@ -17,7 +17,7 @@ func getPodInfoTabs() []string {
 }
 
 func getJobInfoTabs() []string {
-	return []string{"logs", "description", "cron"}
+	return []string{"description", "logs", "cron"}
 }
 
 func getDeployInfoTabs() []string {

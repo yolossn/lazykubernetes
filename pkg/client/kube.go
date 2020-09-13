@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"time"
 
+	v1Apps "k8s.io/api/apps/v1"
+	v1Batch "k8s.io/api/batch/v1"
 	v1Core "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/version"
@@ -148,6 +150,57 @@ func (k *K8s) DescribePod(ns string, podname string) (*v1Core.Pod, error) {
 	}
 	return out, nil
 }
+
+func (k *K8s) DescribeJob(ns string, jobname string) (*v1Batch.Job, error) {
+	ctx := context.TODO()
+	opts := v1.GetOptions{}
+	out, err := k.client.BatchV1().Jobs(ns).Get(ctx, jobname, opts)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (k *K8s) DescribeService(ns string, servicename string) (*v1Core.Service, error) {
+	ctx := context.TODO()
+	opts := v1.GetOptions{}
+	out, err := k.client.CoreV1().Services(ns).Get(ctx, servicename, opts)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (k *K8s) DescribeDeployment(ns string, deploymentname string) (*v1Apps.Deployment, error) {
+	ctx := context.TODO()
+	opts := v1.GetOptions{}
+	out, err := k.client.AppsV1().Deployments(ns).Get(ctx, deploymentname, opts)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (k *K8s) DescribeSecret(ns string, secretName string) (*v1Core.Secret, error) {
+	ctx := context.TODO()
+	opts := v1.GetOptions{}
+	out, err := k.client.CoreV1().Secrets(ns).Get(ctx, secretName, opts)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (k *K8s) DescribeConfigMap(ns string, configMapName string) (*v1Core.ConfigMap, error) {
+	ctx := context.TODO()
+	opts := v1.GetOptions{}
+	out, err := k.client.CoreV1().ConfigMaps(ns).Get(ctx, configMapName, opts)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 
 func (k *K8s) StreamPodLogs(ns string, podname string) *restclient.Request {
 	opts := &v1Core.PodLogOptions{Follow: true}
