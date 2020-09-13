@@ -23,5 +23,6 @@ type panelStates struct {
 func NewPanelStates() *panelStates {
 	ns := &namespaceState{}
 	rs := &resourceState{}
-	return &panelStates{Namespace: ns, Resource: rs}
+	is := &infoState{}
+	return &panelStates{Namespace: ns, Resource: rs, Info: is}
 }
