@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 	"time"
 
@@ -76,6 +77,7 @@ func (k *K8s) ListPods(namespace string) ([]PodInfo, error) {
 	podList := []PodInfo{}
 	for _, pod := range pods.Items {
 		restarts := int32(0)
+
 		ready := int32(0)
 		totalContianers := int32(len(pod.Status.ContainerStatuses))
 		for _, container := range pod.Status.ContainerStatuses {
