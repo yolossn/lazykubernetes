@@ -179,8 +179,6 @@ func (gui *Gui) handleSecretSelect(v *gocui.View) error {
 	return nil
 }
 
-
-
 func (gui *Gui) handleServiceSelect(v *gocui.View) error {
 	// Find Selected Service
 	serviceSelected := gui.panelStates.Resource.SelectedLine
@@ -211,7 +209,6 @@ func (gui *Gui) handleServiceSelect(v *gocui.View) error {
 	}
 	return nil
 }
-
 
 func (gui *Gui) handlePodSelect(v *gocui.View) error {
 
@@ -340,7 +337,7 @@ func (gui *Gui) setPods(namespace string) {
 
 	pods, err := gui.k8sClient.ListPods(namespace)
 	if err != nil {
-
+		return
 	}
 	gui.data.PodData = pods
 }
@@ -351,7 +348,7 @@ func (gui *Gui) setJobs(namespace string) {
 
 	jobs, err := gui.k8sClient.ListJobs(namespace)
 	if err != nil {
-
+		return
 	}
 	gui.data.JobData = jobs
 }
@@ -373,7 +370,7 @@ func (gui *Gui) setConfigMaps(namespace string) {
 
 	configmaps, err := gui.k8sClient.ListConfigMap(namespace)
 	if err != nil {
-
+		return
 	}
 	gui.data.ConfigMapData = configmaps
 }
@@ -384,7 +381,7 @@ func (gui *Gui) setSecrets(namespace string) {
 
 	secrets, err := gui.k8sClient.ListSecrets(namespace)
 	if err != nil {
-
+		return
 	}
 	gui.data.SecretData = secrets
 }
