@@ -2,8 +2,10 @@ package utils
 
 import (
 	"io"
+	"os"
 
 	"github.com/common-nighthawk/go-figure"
+	"github.com/mitchellh/go-homedir"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -31,4 +33,17 @@ func RenderTable(view io.Writer, data [][]string, header []string) {
 func GetLazykubernetesArt() string {
 	myFigure := figure.NewFigure("lazykubernetes", "stop", true)
 	return myFigure.String()
+}
+
+func FindKubeConfig() (string, error) {
+	env := os.Getenv("KUBECONFIG")
+	if env != "" {
+		return env, nil
+	}
+
+	path, err := homedir.Expand("~/.kube/config")
+	if err != nil {
+		return "", err
+	}
+	return path, nil
 }

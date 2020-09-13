@@ -37,6 +37,6 @@ func (gui *Gui) reRenderClusterInfo() error {
 	}
 
 	clusterView.Clear()
-	fmt.Fprintf(clusterView, "Version:   %s.%s\nplatform:  %s\nHealth:  %s", info.Major, info.Minor, info.Platform, "🟢")
+	fmt.Fprintf(clusterView, "Context:  %s\nServer:   %s\nVersion:  %s.%s\nplatform: %s\nHealth:   %s", info.Context, info.Server, info.ServerInfo.Major, info.ServerInfo.Minor, info.ServerInfo.Platform, "🟢")
 	return nil
 }

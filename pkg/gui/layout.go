@@ -30,7 +30,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 	_, _ = g.SetViewOnBottom("limit")
 	g.DeleteView("limit")
 
-	unitHeight := termHeight / 10
+	unitHeight := termHeight / 6
 
 	leftColumnWidth := termWidth / 3
 

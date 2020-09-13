@@ -2,9 +2,9 @@ package client
 
 import (
 	"context"
-	"path/filepath"
 	"time"
 
+	"github.com/yolossn/lazykubernetes/pkg/utils"
 	v1Core "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/version"
@@ -12,7 +12,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
 )
 
 type K8s struct {
@@ -20,15 +19,13 @@ type K8s struct {
 }
 
 func Newk8s() (*K8s, error) {
-	var kubeconfig string
-	if home := homedir.HomeDir(); home != "" {
-		kubeconfig = filepath.Join(home, ".kube", "config")
-	}
-	// } else {
-	// 	kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-	// }
 
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	kubeConfigPath, err := utils.FindKubeConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
 	if err != nil {
 		return nil, err
 	}
@@ -40,8 +37,36 @@ func Newk8s() (*K8s, error) {
 	return &K8s{clientset}, nil
 }
 
-func (k *K8s) GetServerInfo() (*version.Info, error) {
-	return k.client.DiscoveryClient.ServerVersion()
+type ServerInfo struct {
+	Context    string
+	Server     string
+	ServerInfo *version.Info
+}
+
+func (k *K8s) GetServerInfo() (*ServerInfo, error) {
+	kubeConfigPath, err := utils.FindKubeConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	kubeConfig, err := clientcmd.LoadFromFile(kubeConfigPath)
+	if err != nil {
+		return nil, err
+	}
+
+	version, err := k.client.DiscoveryClient.ServerVersion()
+	if err != nil {
+		return nil, err
+	}
+
+	currentCluster := *kubeConfig.Clusters[kubeConfig.CurrentContext]
+	s := ServerInfo{
+		Context:    kubeConfig.CurrentContext,
+		Server:     currentCluster.Server,
+		ServerInfo: version,
+	}
+
+	return &s, nil
 }
 
 type NamespaceInfo struct {
