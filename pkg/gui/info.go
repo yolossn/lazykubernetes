@@ -27,6 +27,8 @@ func (gui *Gui) onInfoTabClick(tabIndex int) error {
 	return nil
 }
 
+// The following scroll functions are modified version of code from lazydocker
+// https://github.com/jesseduffield/lazydocker/blob/fa6460b8ab3486b7e84c3a7d4c64fbd8e3f4be21/pkg/gui/main_panel.go
 func (gui *Gui) scrollLeftInfo(g *gocui.Gui, v *gocui.View) error {
 	infoView := gui.getInfoView()
 	ox, oy := infoView.Origin()
