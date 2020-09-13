@@ -78,6 +78,9 @@ func (gui *Gui) Run() error {
 	go gui.goEvery(time.Second, gui.reRenderClusterInfo)
 	go gui.goEvery(time.Second, gui.reRenderNodeInfo)
 
+	// highlight cluster view on start
+	go gui.highlightClusterInfoView()
+
 	err = g.MainLoop()
 	return err
 }

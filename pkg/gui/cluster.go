@@ -12,6 +12,17 @@ func (gui *Gui) getClusterInfoView() *gocui.View {
 	return v
 }
 
+func (gui *Gui) highlightClusterInfoView() error {
+	var cview *gocui.View
+	for {
+		cview = gui.getClusterInfoView()
+		if cview != nil {
+			break
+		}
+	}
+	return gui.onClusterInfoClick(gui.g, cview)
+}
+
 func (gui *Gui) onClusterInfoClick(g *gocui.Gui, v *gocui.View) error {
 
 	if _, err := g.SetCurrentView(v.Name()); err != nil {
