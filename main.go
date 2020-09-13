@@ -11,7 +11,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
+	// _, _ = k8sClient.GetServerInfo()
 	ui, err := app.NewApp(k8sClient)
 	if err != nil {
 		panic(err)
