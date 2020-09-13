@@ -22,7 +22,7 @@ func RenderTable(view io.Writer, data [][]string, header []string) {
 	table.SetRowSeparator("")
 	table.SetHeaderLine(false)
 	table.SetBorder(false)
-	table.SetTablePadding("\t")
+	table.SetTablePadding("   ")
 	table.SetNoWhiteSpace(true)
 	table.AppendBulk(data)
 	table.Render()

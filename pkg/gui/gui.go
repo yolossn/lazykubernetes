@@ -11,10 +11,14 @@ import (
 var OverlappingEdges = false
 
 type data struct {
-	NamespaceData []client.NamespaceInfo
-	nsMux         sync.RWMutex
-	PodData       []client.PodInfo
-	rsMux         sync.RWMutex
+	NamespaceData  []client.NamespaceInfo
+	nsMux          sync.RWMutex
+	PodData        []client.PodInfo
+	JobData        []client.JobInfo
+	DeploymentData []client.DeploymentInfo
+	SecretData     []client.SecretInfo
+	ConfigMapData  []client.ConfigMapInfo
+	rsMux          sync.RWMutex
 }
 
 type Gui struct {
