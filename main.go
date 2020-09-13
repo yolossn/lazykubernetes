@@ -1,6 +1,10 @@
 package main
 
 import (
+	"log"
+	"os"
+
+	"github.com/jesseduffield/gocui"
 	"github.com/yolossn/lazykubernetes/pkg/app"
 	"github.com/yolossn/lazykubernetes/pkg/client"
 )
@@ -9,16 +13,19 @@ func main() {
 	// Setup k8sClient
 	k8sClient, err := client.Newk8s()
 	if err != nil {
-		panic(err)
+		log.Fatal("Couldn't connect to the k8s cluster")
 	}
-	// _, _ = k8sClient.GetServerInfo()
+
 	ui, err := app.NewApp(k8sClient)
 	if err != nil {
-		panic(err)
+		log.Fatal("Something went wrong")
 	}
 
 	err = ui.Run()
 	if err != nil {
-		panic(err)
+		if err == gocui.ErrQuit {
+			os.Exit(0)
+		}
+		log.Fatal("Something went wrong")
 	}
 }
