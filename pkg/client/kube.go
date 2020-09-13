@@ -216,6 +216,53 @@ func (k *K8s) ListDeployments(namespace string) ([]DeploymentInfo, error) {
 	return deploymentList, nil
 }
 
+type ServiceInfoPort struct {
+	Name       string
+	Protocol   string
+	Port       int32
+	TargetPort int32
+}
+
+type ServiceInfo struct {
+	Name       string
+	Namespace  string
+	Type       string
+	ClusterIP  string
+	ExternalIP string
+	Ports      []ServiceInfoPort
+	CreatedAt  time.Time
+}
+
+func (k *K8s) ListServices(namespace string) ([]ServiceInfo, error) {
+	ctx := context.TODO()
+	opts := v1.ListOptions{}
+	services, _ := k.client.CoreV1().Services(namespace).List(ctx, opts)
+	serviceList := []ServiceInfo{}
+	for _, service := range services.Items {
+		serviceInfoPorts := []ServiceInfoPort{}
+		for _, sPort := range service.Spec.Ports {
+			serviceInfoPort := ServiceInfoPort{
+				Name:       sPort.Name,
+				Protocol:   string(sPort.Protocol),
+				Port:       int32(sPort.Port),
+				TargetPort: sPort.TargetPort.IntVal,
+			}
+			serviceInfoPorts = append(serviceInfoPorts, serviceInfoPort)
+		}
+		s := ServiceInfo{
+			Name:       service.ObjectMeta.Name,
+			Namespace:  service.ObjectMeta.Namespace,
+			Type:       string(service.Spec.Type),
+			ClusterIP:  service.Spec.ClusterIP,
+			ExternalIP: "<Not-Implemented>", // TODO: Implement external ip
+			Ports:      serviceInfoPorts,
+			CreatedAt:  service.ObjectMeta.CreationTimestamp.Time,
+		}
+		serviceList = append(serviceList, s)
+	}
+	return serviceList, nil
+}
+
 type StatefulsetInfo struct {
 	Name            string
 	Namespace       string
