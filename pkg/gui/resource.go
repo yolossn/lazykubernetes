@@ -161,6 +161,9 @@ func (gui *Gui) reRenderResource() error {
 	case "deploy":
 		gui.setDeployments(ns)
 		return gui.renderDeployments()
+	case "service":
+		gui.setServices(ns)
+		return gui.renderServices()
 	case "secret":
 		gui.setSecrets(ns)
 		return gui.renderSecrets()
@@ -174,6 +177,17 @@ func (gui *Gui) reRenderResource() error {
 
 func (gui *Gui) getCurrentResourceTab() string {
 	return getResourceTabs()[gui.panelStates.Resource.TabIndex]
+}
+
+func (gui *Gui) setServices(namespace string) {
+	gui.data.rsMux.Lock()
+	defer gui.data.rsMux.Unlock()
+
+	services, err := gui.k8sClient.ListServices(namespace)
+	if err != nil {
+
+	}
+	gui.data.ServiceData = services
 }
 
 func (gui *Gui) setPods(namespace string) {
@@ -229,6 +243,43 @@ func (gui *Gui) setSecrets(namespace string) {
 
 	}
 	gui.data.SecretData = secrets
+}
+
+func (gui *Gui) renderServices() error {
+	rsView := gui.getResourceView()
+	if rsView == nil {
+		return nil
+	}
+
+	gui.data.rsMux.RLock()
+	defer gui.data.rsMux.RUnlock()
+
+	rsView.Clear()
+	services := gui.data.ServiceData
+	data := make([][]string, cap(services))
+	for i := 0; i < cap(services); i++ {
+		data[i] = make([]string, 6)
+	}
+	// headers := []string{"NAME", "TYPE", "CLUSTER-IP", "EXTERNAL-IP", "PORT(s)", "AGE"}
+	headers := []string{"NAME", "TYPE", "CLUSTER-IP", "PORT(s)", "AGE"}
+
+	for i, service := range services {
+		data[i][0] = service.Name
+		data[i][1] = service.Type
+		data[i][2] = service.ClusterIP
+		// data[i][3] = service.ExternalIP
+		s := ""
+		for _, portInfo := range service.Ports {
+			port_string := fmt.Sprintf("%v/%s", portInfo.Port, portInfo.Protocol)
+			s = fmt.Sprintf("%s %s", s, port_string)
+		}
+		data[i][3] = fmt.Sprintf("%v", s)
+		data[i][4] = duration.HumanDuration(time.Since(service.CreatedAt))
+	}
+
+	utils.RenderTable(rsView, data, headers)
+
+	return nil
 }
 
 func (gui *Gui) renderSecrets() error {

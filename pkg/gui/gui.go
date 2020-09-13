@@ -16,6 +16,7 @@ type data struct {
 	PodData        []client.PodInfo
 	JobData        []client.JobInfo
 	DeploymentData []client.DeploymentInfo
+	ServiceData   []client.ServiceInfo
 	SecretData     []client.SecretInfo
 	ConfigMapData  []client.ConfigMapInfo
 	rsMux          sync.RWMutex
