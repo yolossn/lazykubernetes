@@ -3,6 +3,9 @@
 <p align="center">
     <img src="https://user-images.githubusercontent.com/22731013/93019273-8f676f00-f5f3-11ea-9cb9-fabef4f62e1f.png" height="200px"/>
 </p>
+<p align="center">
+    <a href="https://fossunited.org"><img src="http://fossunited.org/files/fossunited-badge.svg" alt="Supported by FOSS United" /></a>
+</p>
 
 
 ## Why ?
